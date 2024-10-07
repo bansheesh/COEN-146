@@ -1,11 +1,10 @@
 /*
 * Name: Lydia Martin
 * Date: Tuesday 5:15
-* Title: Lab2 – Write your C program to copy multiple files (say 10 files) by creating threads, 
-* 		 each of which will be responsible of copying one file. 
-* Description: This program copies multiple filse by creating threads to copy each file.
+* Title: Lab2 – Multithreaded File Copy
+* Description: This program copies files by creating multiple threads to transfer each file. A far 
+* more efficient way to copy files since it utilizes parallel copying.
 */
-
 // COEN 146L : Lab 2 - template to use for creating multiple thread to make file transfers (step 1)
 
 #include <stdio.h>   // fprintf(), fread(), fwrite(), fopen(), fclose()
@@ -71,7 +70,6 @@ int func_copy(char* src_filename, char* dst_filename) {
     fclose(dst);
     free(buf);
 	return 0;
-	return 0;
 }
 
 // thread function to copy one file
@@ -79,7 +77,7 @@ void* copy_thread(void* arg) {
 	struct copy_struct params = *(struct copy_struct*)arg;  // cast/dereference void* to copy_struct
 	printf("thread[%i] - copying %s to %s\n", params.thread_id, params.src_filename, params.dst_filename);
 	//call file copy function
-	func_copy(src_filename, dst_filename);
+	func_copy(params.src_filename, params.dst_filename);
 	pthread_exit(NULL);
 }
 
@@ -93,7 +91,7 @@ int main(int argc, char* argv[]) {
 	char* dst_filename;
 	char* src_filenames[argc / 2]; // array of source files
 	char* dst_filenames[argc / 2]; // array of desintation files
-	int num_threads; // number of threads to create
+	int num_threads = (argc - 1)/2; // number of threads to create
 	
 	pthread_t threads[num_threads]; //initialize threads
 	struct copy_struct thread_params[num_threads]; // structure for each thread
@@ -101,12 +99,14 @@ int main(int argc, char* argv[]) {
 	for (i = 0; i < num_threads; i++) {
 		// initialize thread parameters
 		thread_params[i].thread_id = i;
-		thread_params[i].src_filename = argc[2 + i];
-		thread_params[i].dst_filename = argc[2 + num_threads + i];
+		thread_params[i].src_filename = argv[2 + i];
+		thread_params[i].dst_filename = argv[2 + num_threads + i];
 
 		// create each copy thread
-		//pthread_create(pt)
-		// use pthread_create(.....);
+		if(pthread_create(&threads[i], NULL, copy_thread, &thread_params[i]) != 0){
+			fprintf(stderr, "Error creating thread %d\n",i);
+			exit(1);
+		}
 	}
 
 	// wait for all threads to finish

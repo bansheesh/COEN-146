@@ -1,8 +1,10 @@
 /*
 * Name: Lydia Martin
 * Date: Tuesday 5:15
-* Title: Lab2 – 
-* Description: This program 
+* Title: Lab 2 – Packet & Circuit Switching
+* Description: This program simulates a packet switching network by calculating the 
+* probabilities of users transmitting data over a shared link. This allows the network
+* to be used as efficiently as possible without needing reserve bandwidth.
 */
 //COEN 146L : Lab2 - Steps 2 and 3
 #include <stdio.h>  
@@ -27,7 +29,7 @@ int main(int argc, char *argv[]) {
    double pPSusers, tPSusers, pPSusersBusy, pPSusersNotBusy;
    
    // Get values from command line
-   linkBandwidth = atoi(argv[1]);
+   linkBandwidth = atoi(argv[1]); 
    userBandwidth = atoi(argv[2]);
    tPSusers  = atof(argv[3]);
    nPSusers = atoi(argv[4]);
@@ -39,17 +41,26 @@ int main(int argc, char *argv[]) {
    
    // 3: Packet Switching Senario
    //compute: 3a, b, c, d, e, f, g, h 
-   pPSusers = tPSusers;
-   pPSusersNotBusy = 1 - pPSusers;
-   double pAllNotBusy = pow((1 - pPSusers),(nPSusers - 1));
+
+   pPSusers = tPSusers; // Probability that a specific user is busy transmitting
+   pPSusersNotBusy = 1 - pPSusers; // Probability that a specific user is not busy
+   
+   //probability that different numbers of users are busy or not busy
+   double pAllNotBusy = pow((1 - pPSusers),(nPSusers - 1)); 
    double pOneBusy = pPSusers * pow((pPSusersNotBusy),(nPSusers - 1));
    double pExactlyOne = nPSusers * (pPSusers * pow((pPSusersNotBusy), (nPSusers - 1)));
    double pTenBusy = pow(pPSusers,10) * pow(pPSusersNotBusy,(nPSusers - 10));
    
+   //probability that any 10 users are busy 
    double temp = (factorial(nPSusers) / (factorial(10) * factorial(nPSusers - 10)));
    double pAnyTenBusy = temp * pow(pPSusers,10) * pow(pPSusersNotBusy,(nPSusers - 10));
    
-   double pTenMoreBusy = 
+   //probability that 10 or more users are busy
+   double pTenMoreBusy = 0.0;
+   for (int i = 11; i <= nPSusers;i++){
+    double binomCoeff = factorial(nPSusers) / (factorial(i) * factorial(nPSusers - i));
+    pTenMoreBusy += binomCoeff * pow(pPSusers, i) * pow(pPSusersNotBusy, nPSusers - i);
+   }
    
    
    printf("3: Packet switching senario");
